@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Image {
+  id            String   @id @default(cuid())
+  filename      String
+  originalName  String
+  mimetype      String
+  size          Int
+  path          String
+  uploadedAt    DateTime @default(now())
+  deletedStatus Int      @default(0) // 0: active, 1: trashed
+  deletedAt     DateTime?            // null if not deleted
+  trash         Boolean  @default(false)
+
+  @@map("images")
+}
