@@ -1,144 +1,128 @@
-Image Upload System - Backend
-This is the backend component of the Image Upload System, built with NestJS. It handles image uploads, processing (conversion to WebP), storage, retrieval, and deletion.
 
-Features
-Image Upload API: Accepts JPEG, PNG, and WebP image files.
+# Image Upload System - Backend 🚀
 
-Image Validation: Validates file types and sizes (10MB limit) during upload.
+This is the robust backend component of our Image Upload System, meticulously crafted with **NestJS**. It's the powerhouse that handles all the heavy lifting: image uploads, intelligent processing, secure storage, efficient retrieval, and flexible deletion options.
 
+## ✨ Features
 
-Image Optimization: Converts uploaded images to WebP format using sharp for efficient storage and delivery. 
+  * **Image Upload API**: Accepts popular image formats like JPEG, PNG, and WebP, ensuring broad compatibility.
+  * [cite\_start]**Image Validation**: Rigorous validation checks for file types and sizes (up to 10MB limit) during upload, maintaining data integrity[cite: 2].
+  * **Image Optimization**: Automatically converts uploaded images to highly efficient WebP format using `sharp`, significantly reducing file sizes and boosting delivery performance 🚀.
+  * **File Storage**: Stores both the original raw image and the optimized WebP version on the local filesystem, providing flexibility for different use cases.
+  * **Database Integration**: Seamlessly integrates with a **PostgreSQL** database via **Prisma ORM** to meticulously store all image metadata (filename, original name, mimetype, size, path, upload time, deletion status) 💾.
+  * **Image Retrieval**: Provides dedicated endpoints to fetch all uploaded image metadata, and to serve individual WebP or raw image files on demand 🖼️.
+  * **Flexible Delete Functionality**:
+      * **Soft Delete (Trash)**: Updates `deletedStatus` and `deletedAt` fields in the database, effectively marking the image as 'trashed' without immediate removal from storage. Perfect for recovery options\! 🗑️.
+      * **Permanent Delete**: Completely removes the image file from the filesystem and its corresponding record from the database, ensuring clean data management 🔥.
+  * [cite\_start]**CORS Enabled**: Pre-configured to allow smooth and secure cross-origin requests from your frontend application 🔗[cite: 2].
+  * [cite\_start]**Fastify Integration**: Utilizes **Fastify** as the underlying HTTP server, delivering blazing-fast performance and responsiveness ⚡[cite: 2].
 
+## 🛠️ Technologies Used
 
-File Storage: Stores both the original raw image and the converted WebP image on the local filesystem. 
+  * **NestJS**: A progressive Node.js framework for building efficient, reliable and scalable server-side applications.
+  * **Fastify**: A fast and low-overhead web framework for Node.js, ensuring high throughput.
+  * **Prisma (ORM)**: A next-generation ORM for Node.js and TypeScript, simplifying database access.
+  * **PostgreSQL (Database)**: A powerful, open-source object-relational database system.
+  * `@fastify/multipart`: Essential plugin for handling `multipart/form-data` file uploads.
+  * `sharp`: High-performance Node.js image processing, ideal for image optimization.
+  * `uuid`: For generating unique identifiers, crucial for unique filenames.
 
+## 🚀 Setup and Installation
 
-Database Integration: Uses Prisma ORM with a PostgreSQL database to store image metadata (filename, original name, mimetype, size, path, upload time, deletion status). 
+Get your backend up and running in a few simple steps\!
 
+1.  **Clone the repository:**
 
-Image Retrieval: Provides endpoints to fetch all uploaded image metadata and to serve individual WebP or raw image files. 
+    ```bash
+    git clone <backend-repository-url>
+    cd <backend-repository-folder>
+    ```
 
-Delete Functionality: Supports two types of deletion:
+2.  **Install dependencies:**
 
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-Soft Delete (Trash): Updates deletedStatus and deletedAt fields in the database, marking the image as trashed without removing the file. 
+3.  **Set up your PostgreSQL database:**
 
+      * Ensure **PostgreSQL** is actively running on your system.
+      * Create a brand new database (e.g., `image_upload_db`).
+      * Create a `.env` file in the root of your project and add your database connection string and desired port:
+        ```env
+        DATABASE_URL="postgresql://user:password@localhost:5432/image_upload_db?schema=public"
+        PORT=3001
+        ```
+        *(**Remember to replace** `user`, `password`, `localhost:5432`, and `image_upload_db` with your actual database credentials\!)*
 
-Permanent Delete: Removes the image file from the filesystem and its corresponding record from the database. 
+4.  **Run Prisma Migrations:**
 
-CORS Enabled: Configured to allow cross-origin requests from the frontend application.
+    ```bash
+    npx prisma migrate dev --name init
+    ```
 
-Fastify Integration: Utilizes Fastify as the underlying HTTP server for high performance.
+    This powerful command will automatically create the `images` table in your database, as meticulously defined in your `prisma/schema.prisma` file.
 
-Technologies Used
-NestJS
+5.  **Create an `uploads` directory:**
+    The application stores all uploaded images in an `uploads` directory located one level *above* your project root. Manually create this directory:
 
-Fastify
+    ```bash
+    mkdir ../uploads
+    ```
 
-Prisma (ORM)
+    🚨 **Important:** Ensure that the NestJS application process has the necessary **write permissions** to this directory\!
 
-PostgreSQL (Database)
+6.  **Run the backend server:**
 
-@fastify/multipart (for handling file uploads)
+    ```bash
+    npm run start:dev
+    # or
+    yarn start:dev
+    ```
 
+    Your backend server will spring to life and listen on `http://localhost:3001` (or the port you've specified in your `.env` file). You should see a confirmation message like "Application is running on: http://localhost:3001" in your console. 🎉
 
-sharp (for image processing and WebP conversion) 
+## 🌐 API Endpoints
 
+The backend proudly exposes the following **RESTful API endpoints** for seamless interaction:
 
-uuid (for generating unique identifiers) 
+  * ### `POST /api/images/upload`
 
-Setup and Installation
-Clone the repository:
+      * **Description**: Uploads a brand new image file to the system.
+      * **Request**: `multipart/form-data` with a field ingeniously named `file`.
+      * **Response**: `200 OK` with a success message and the valuable metadata of your freshly uploaded image, or `400 Bad Request` if something goes awry.
 
-Bash
+  * ### `GET /api/images`
 
-git clone <backend-repository-url>
-cd <backend-repository-folder>
-Install dependencies:
+      * **Description**: Retrieves a comprehensive list of metadata for all uploaded images, thoughtfully including convenient URLs to access their optimized WebP and original raw versions.
+      * **Response**: `200 OK` with a delightful array of image objects.
 
-Bash
+  * ### `GET /api/images/:id`
 
-npm install
-# or
-yarn install
-Set up your PostgreSQL database:
+      * **Description**: Serves a specific image file by its unique database ID. By default, this will efficiently serve the optimized WebP version.
+      * **Response**: The raw image file content itself. Expect a `404 Not Found` if the image or file decides to play hide-and-seek.
 
-Ensure PostgreSQL is running on your system.
+  * ### `POST /api/images/trash/:id`
 
-Create a new database (e.g., image_upload_db).
+      * **Description**: Performs a **soft delete** on an image, gracefully marking it as 'trashed' within the database. The file remains on storage, ready for potential recovery.
+      * **Response**: `200 OK` on a successful trashing, or `400 Bad Request` if the trash bin is uncooperative.
 
-Create a .env file in the root of the project and add your database connection string and port:
+  * ### `DELETE /api/images/:id`
 
-Code snippet
+      * **Description**: **Permanently deletes** an image file from the filesystem and its corresponding record from the database. Use with caution\!.
+      * **Response**: `200 OK` for a clean permanent deletion, or `400 Bad Request` if the deletion encounters an obstacle.
 
-DATABASE_URL="postgresql://user:password@localhost:5432/image_upload_db?schema=public"
-PORT=3001
-Replace user, password, localhost:5432, and image_upload_db with your actual database credentials.
+  * ### `GET /api/images/webp/:filename`
 
-Run Prisma Migrations:
+      * **Description**: Serves the **WebP optimized version** of an image file directly, accessible by its generated unique filename.
+      * **Response**: The WebP image file content. `404 Not Found` if the optimized file is elusive.
 
-Bash
+  * ### `GET /api/images/raw/:filename`
 
-npx prisma migrate dev --name init
-This command will create the images table in your database, as defined in prisma/schema.prisma.
-
-Create an uploads directory:
-The application stores uploaded images in an uploads directory one level above the project root. Create this directory manually:
-
-Bash
-
-mkdir ../uploads
-Ensure that the NestJS application process has write permissions to this directory.
-
-Run the backend server:
-
-Bash
-
-npm run start:dev
-# or
-yarn start:dev
-The backend server will start and listen on http://localhost:3001 (or the port you specified in your .env file). You should see a message similar to "Application is running on: http://localhost:3001" in your console.
-
-API Endpoints
-The backend exposes the following RESTful API endpoints:
-
-POST /api/images/upload
-
-Description: Uploads a new image file.
-
-Request: multipart/form-data with a field named file.
-
-Response: 200 OK with success message and uploaded image metadata, or 400 Bad Request on failure.
-
-GET /api/images
-
-Description: Retrieves metadata for all uploaded images, including URLs to access their WebP and raw versions.
-
-Response: 200 OK with a list of image objects.
-
-GET /api/images/:id
-
-Description: Serves a specific image file by its database ID. This will typically serve the WebP version.
-
-Response: The image file content. 404 Not Found if the image or file does not exist.
-
-POST /api/images/trash/:id
-
-Description: Performs a soft delete on an image, marking it as 'trashed' in the database.
-
-Response: 200 OK on success, or 400 Bad Request on failure.
-
-DELETE /api/images/:id
-
-Description: Permanently deletes an image file from the filesystem and its record from the database.
-
-Response: 200 OK on success, or 400 Bad Request on failure.
-
-GET /api/images/webp/:filename
-
-Description: Serves the WebP optimized version of an image file directly by its generated filename.
-
-Response: The WebP image file content. 404 Not Found if the file does not exist.
+      * **Description**: Serves the **original raw (unprocessed) version** of an image file, primarily intended for direct download, by its original filename.
+      * **Response**: The raw image file content, accompanied by a `Content-Disposition` header for seamless downloading. `404 Not Found` if the raw file is missing.
 
 GET /api/images/raw/:filename
 
